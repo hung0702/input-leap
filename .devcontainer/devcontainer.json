@@ -1,0 +1,35 @@
+{
+  "name": "Input Leap Build Environment",
+  // Use a standard, multi-platform image known to be compatible with Codespaces.
+  "image": "mcr.microsoft.com/devcontainers/base:bookworm",
+
+  // "features" are modular scripts that add tools to the container.
+  // This feature will run 'apt-get install' for us on the specified packages.
+  "features": {
+    "ghcr.io/devcontainers/features/apt:1": {
+      "packages": [
+        "build-essential",
+        "git",
+        "cmake",
+        "libavahi-compat-libdnssd-dev",
+        "libcurl4-openssl-dev",
+        "libgtest-dev",
+        "libssl-dev",
+        "libsystemd-dev",
+        "libx11-dev",
+        "libxext-dev",
+        "libxinerama-dev",
+        "libxkbcommon-dev",
+        "libxtst-dev",
+        "qt6-base-dev",
+        "qt6-tools-dev-tools",
+        "qt6-l10n-tools",
+        "g++",
+        "pkg-config"
+      ]
+    }
+  },
+
+  // Set the remote user to 'vscode'. This is the default for this base image.
+  "remoteUser": "vscode"
+}
