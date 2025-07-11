@@ -1,12 +1,14 @@
 {
-  "name": "Input Leap Build Environment (Dockerfile)",
+  "name": "Input Leap Build Environment (ARM64)",
 
-  // Instruct Codespaces to build the container from the Dockerfile
-  // located in this same directory.
   "build": {
     "dockerfile": "Dockerfile"
   },
 
-  // Specify the user to connect as, which we set up in the Dockerfile.
+  // This section requests a specific host machine architecture.
+  "hostRequirements": {
+    "arch": "arm64"
+  },
+
   "remoteUser": "vscode"
 }
