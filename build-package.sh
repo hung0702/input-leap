@@ -39,24 +39,38 @@ sudo apt-get install -y \
 echo "--- All dependencies installed successfully."
 
 # ---
-# 2. Configure and Compile
+# 2. Initialize Git Submodules
+# ---
+# This step is crucial. It downloads the source code for external
+# dependencies like the Google Test framework.
+echo "--- Initializing and updating Git submodules..."
+git submodule update --init --recursive
+
+echo "--- Submodules updated successfully."
+
+# ---
+# 3. Configure and Compile
 # ---
 # The script is run from the root of the repository, so we build from here.
 echo "--- Configuring the build with CMake..."
-cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D INPUTLEAP_BUILD_TYPE=Release
+# Add CPACK_PACKAGE_CONTACT to satisfy Debian packaging requirements.
+cmake -S . -B build \
+    -D CMAKE_BUILD_TYPE=Release \
+    -D INPUTLEAP_BUILD_TYPE=Release \
+    -D CPACK_PACKAGE_CONTACT="local-build@example.com"
 
 echo "--- Compiling Input Leap... This may take several minutes."
 cmake --build build -j$(nproc)
 
 # ---
-# 3. Create Debian Package
+# 4. Create Debian Package
 # ---
-# --- Packaging the application into a .deb file...
+echo "--- Packaging the application into a .deb file..."
 cd build
 cpack -G DEB
 
 # ---
-# 4. Final Output
+# 5. Final Output
 # ---
 echo ""
 echo "=============================================================================="
