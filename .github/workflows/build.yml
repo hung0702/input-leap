@@ -1,0 +1,113 @@
+# .github/workflows/build.yml
+# This workflow builds Input Leap for both amd64 and arm64 architectures
+# on Debian Bookworm and uploads the resulting .deb packages as artifacts.
+
+name: Build and Package Input Leap
+
+# ---
+# 1. Trigger
+# ---
+# This workflow runs on every push to the 'master' or 'main' branch.
+# It can also be triggered manually from the Actions tab on GitHub.
+on:
+  push:
+    branches: [ "master", "main" ]
+  workflow_dispatch:
+
+jobs:
+  build_packages:
+    # ---
+    # 2. Build Matrix
+    # ---
+    # This strategy creates a parallel job for each combination defined here.
+    # We will build on both x86-64 and arm64 architectures.
+    strategy:
+      matrix:
+        # Define the runner architecture and the corresponding Debian architecture name.
+        include:
+          - runner: ubuntu-latest
+            arch: amd64
+          - runner: ubuntu-latest-arm64
+            arch: arm64
+
+    # ---
+    # 3. Runner Configuration
+    # ---
+    # Use the runner specified by the matrix.
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      # ---
+      # 4. Checkout Code
+      # ---
+      # Clones the repository code into the runner environment.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # This is crucial: it fetches the Git submodules (like Google Test).
+          submodules: 'recursive'
+
+      # ---
+      # 5. Install Dependencies
+      # ---
+      # Runs the apt command to install all necessary build dependencies.
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+              build-essential \
+              git \
+              cmake \
+              libavahi-compat-libdnssd-dev \
+              libcurl4-openssl-dev \
+              libgtest-dev \
+              libssl-dev \
+              libsystemd-dev \
+              libx11-dev \
+              libxext-dev \
+              libxinerama-dev \
+              libxkbcommon-dev \
+              libxrandr-dev \
+              libxtst-dev \
+              libice-dev \
+              libsm-dev \
+              qt6-base-dev \
+              qt6-tools-dev \
+              qt6-tools-dev-tools \
+              qt6-l10n-tools \
+              g++ \
+              pkg-config
+
+      # ---
+      # 6. Configure and Build
+      # ---
+      # Runs the same cmake and build commands we used manually.
+      - name: Configure and build with CMake
+        run: |
+          cmake -S . -B build \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D INPUTLEAP_BUILD_TYPE=Release \
+            -D CPACK_PACKAGE_CONTACT="ci-build@github.com"
+          cmake --build build -j$(nproc)
+
+      # ---
+      # 7. Package the Application
+      # ---
+      # Runs the cpack command to generate the .deb file.
+      - name: Create Debian package
+        run: |
+          cd build
+          cpack -G DEB
+
+      # ---
+      # 8. Upload Artifact
+      # ---
+      # This step takes the generated .deb file and uploads it so you can
+      # download it from the workflow results page.
+      - name: Upload .deb package as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # The name of the artifact will be 'input-leap-package-[architecture]'.
+          name: input-leap-package-${{ matrix.arch }}
+          # The path to the file to upload. The wildcard finds the generated .deb.
+          path: build/*.deb
