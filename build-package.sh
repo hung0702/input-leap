@@ -30,6 +30,7 @@ sudo apt-get install -y \
     libice-dev \
     libsm-dev \
     qt6-base-dev \
+    qt6-tools-dev \
     qt6-tools-dev-tools \
     qt6-l10n-tools \
     g++ \
@@ -50,7 +51,7 @@ cmake --build build -j$(nproc)
 # ---
 # 3. Create Debian Package
 # ---
-echo "--- Packaging the application into a .deb file..."
+# --- Packaging the application into a .deb file...
 cd build
 cpack -G DEB
 
